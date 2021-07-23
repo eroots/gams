@@ -765,6 +765,9 @@
    <property name="text">
     <string>Link Axes</string>
    </property>
+   <property name="toolTip">
+    <string>Links all the axes together so actions performed on one are done on all</string>
+   </property>
   </action>
  </widget>
  <resources/>
