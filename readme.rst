@@ -23,11 +23,11 @@ https://mirageoscience.com/mining-industry-software/geoscience-analyst/
 Dependencies
 ====
 
-	matplotlib
-	numpy
-	scipy
-	pyqt
-	geoh5py
+* matplotlib
+* numpy
+* scipy
+* pyqt
+* geoh5py
 
 Installing GAMS through pip+Git will result in these libraries being installed in your current python environment.
 
@@ -43,4 +43,4 @@ A file dialog box will open where you can load the Geoscience Analyst workspace 
 Documentation
 ====
 
-Documentation, including explanations of the pre-processing options, is included in docs/gams.pdf
+Documentation, including explanations of the pre-processing options, is included in gams.pdf
