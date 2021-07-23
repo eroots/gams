@@ -1,7 +1,7 @@
 GAMS - Geoscience Analyst Magnetics Suite
 ====
 
-GAMS is a lightweight GUI to read, visualize, and operate on magnetic data imported from Geoscience Analyst 
+GAMS is a lightweight GUI to read, visualize, and operate on magnetic data imported from Geoscience Analyst. 
 The GUI is designed to import magnetic data from a Geoscience Analyst (GA) workspace, perform operations and transformations on the magnetic grids (e.g., spatial derivates, tilt transform), and export the results back into GA for final visualization. Grid pre-processing options are given, and fast (and lazy) vectorized calculations allow visualization and selection of optimal settings in real time.
 
 Installation
