@@ -1,0 +1,14 @@
+setup.py
+gams/__init__.py
+gams.egg-info/PKG-INFO
+gams.egg-info/SOURCES.txt
+gams.egg-info/dependency_links.txt
+gams.egg-info/entry_points.txt
+gams.egg-info/requires.txt
+gams.egg-info/top_level.txt
+gams/GUI/__init__.py
+gams/GUI/gams_gui.py
+gams/resources/__init__.py
+gams/utils/__init__.py
+gams/utils/extrapolate.py
+gams/utils/padding.py

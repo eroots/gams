@@ -1,0 +1,3 @@
+[console_scripts]
+gams = gams.GUI.gams_gui:main
+

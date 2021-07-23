@@ -1,0 +1,6 @@
+numpy
+scipy
+matplotlib
+geoh5py
+scikit-image
+pyqt5
