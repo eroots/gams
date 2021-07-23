@@ -7,9 +7,9 @@ The GUI is designed to import magnetic data from a Geoscience Analyst (GA) works
 Installation
 ====
 
-Currently, GAMS is best installed with pip+Git using::
+GAMS can be installed with pip + git using::
 
-	pip install git+https://github.com/eroots/GAMS.git
+	pip install git+https://github.com/eroots/gams.git
 
 Alternatively, the repository can be manually downloaded and installed using the install script, i.e., by navigating to the GAMS folder and running::
 
@@ -29,7 +29,7 @@ Dependencies
 * pyqt
 * geoh5py
 
-Installing GAMS through pip+Git will result in these libraries being installed in your current python environment.
+Installing GAMS through pip + git will result in these libraries being installed in your current python environment.
 
 Getting Started
 ====
