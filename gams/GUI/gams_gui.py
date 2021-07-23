@@ -154,7 +154,7 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         self.spin_upward_continuation.valueChanged.connect(self.dummy_update_plots)
         self.spin_extrap_param.valueChanged.connect(self.dummy_update_plots)
         # Plot options check boxes
-        self.check_link_axes.clicked.connect(self.update_plots)
+        self.action_link_axes.triggered.connect(self.update_plots)
         # self.check_tight_layout.clicked.connect(self.update_plots)
         # Open / Write menu actions
         self.action_workspace.triggered.connect(self.load_new_workspace)
@@ -649,7 +649,7 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         # Initialize the axes based on a generating tiling
         self.axes = []
         for ii in range(tiling[0] * tiling[1]):
-            if self.check_link_axes.checkState() and ii > 0:
+            if self.action_link_axes.isChecked() and ii > 0:
                 self.axes.append(self.fig.add_subplot(tiling[0], tiling[1], ii + 1,
                                  sharex=self.axes[0], sharey=self.axes[0]))
             else:
