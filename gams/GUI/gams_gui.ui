@@ -77,9 +77,28 @@
      <addaction name="action_viridis"/>
      <addaction name="action_grey"/>
     </widget>
+    <widget class="QMenu" name="menuColour_Limits">
+     <property name="geometry">
+      <rect>
+       <x>421</x>
+       <y>228</y>
+       <width>235</width>
+       <height>102</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Controls how the minimum and maximum values of the plotted grids are chosen</string>
+     </property>
+     <property name="title">
+      <string>Colour Limits</string>
+     </property>
+     <addaction name="action_deviations"/>
+     <addaction name="action_deviation_cutoff"/>
+    </widget>
     <addaction name="menuColour_Map"/>
     <addaction name="action_colourbar"/>
     <addaction name="action_link_axes"/>
+    <addaction name="menuColour_Limits"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuDisplay_Options"/>
@@ -95,7 +114,7 @@
    <property name="minimumSize">
     <size>
      <width>342</width>
-     <height>0</height>
+     <height>840</height>
     </size>
    </property>
    <property name="features">
@@ -147,6 +166,11 @@
           <item>
            <property name="text">
             <string>Median Fill</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Zero Fill</string>
            </property>
           </item>
           <item>
@@ -767,6 +791,28 @@
    </property>
    <property name="toolTip">
     <string>Links all the axes together so actions performed on one are done on all</string>
+   </property>
+  </action>
+  <action name="action_deviations">
+   <property name="text">
+    <string># Standard Deviations</string>
+   </property>
+   <property name="toolTip">
+    <string>Number of standard deviations away from the median to include</string>
+   </property>
+  </action>
+  <action name="action_deviation_cutoff">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Standard Deviation Cutoff</string>
+   </property>
+   <property name="toolTip">
+    <string>Standard Deviation Cutoff</string>
    </property>
   </action>
  </widget>

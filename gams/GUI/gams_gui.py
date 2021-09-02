@@ -26,14 +26,19 @@ window_title = 'Geoscience Analyst Magnetics Suite'
 #####################################
 
 class format_model_coords(object):
-    def __init__(self, im, X, Y, x_label='y', y_label='y', data_units='nT'):
+    def __init__(self, im, X, Y, x_label='y', y_label='y', data_units='nT', median=None, std=None):
         self.im = im
         self.x_label = x_label
         self.y_label = y_label
         self.X = X
         self.Y = Y
-        self.data_units = data_units
+        if 'SI' in data_units:
+            self.data_units = 'SI x 10^-3'
+        else:
+            self.data_units = data_units
         self.data_label = 'Value'
+        self.median = median
+        self.std = std
 
     def __call__(self, x, y):
 
@@ -51,15 +56,17 @@ class format_model_coords(object):
         vals = np.reshape(vals, (len(self.X), len(self.Y)))[y_idx, x_idx]
         return '\t'.join(['{}: {:>4.4g} {}',
                           '{}: {:>4.4g} {}\n',
-                          '{}: {:>4.4g} {}']).format(self.x_label, (y), '',
-                                                     self.y_label, (x), '',
-                                                     self.data_label, (vals), self.data_units)
+                          '{}: {:>4.4g} {}\n',
+                          'Median: {:>4.4g}, STD: {:>4.4g}\n']).format(self.x_label, (y), '',
+                                                                       self.y_label, (x), '',
+                                                                       self.data_label, (vals), self.data_units,
+                                                                       self.median, self.std)
 
 class GamsViewer(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(GamsViewer, self).__init__()
         # Dictionaries of the units / titles for plotted grids
-        self.units = {'appsusc': 'SI / 1000',
+        self.units = {'appsusc': r'SI $\mathregular{\times 10 ^{-3}}$',
                       'magtrans': 'nT',
                       'tiltAS0trans': 'radians',
                       'dxASA0': 'nT/m',
@@ -68,7 +75,7 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
                       'dzASA0': 'nT/m',
                       'ASA0': 'nT',
                       'ASA1': 'nT/m',
-                      'wavenumber': '1/m',
+                      'wavenumber': '1/km',
                       'original': 'nT',
                       'padded': 'nT',
                       'tapered': 'nT',
@@ -146,8 +153,10 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         self.extrapolation = self.combo_extrap.currentText().lower()
         self.padding = self.combo_padding.currentText().lower()
         self.taper = self.combo_taper.currentText().lower()
+        self.spin_extrap_param.setValue(int(self.nx / 2))
         self.extrap_param = self.spin_extrap_param.value()
         self.taper_param = self.spin_taper_param.value()
+        self.num_std = 2
         # Spin box parameters
         self.spin_taper_param.valueChanged.connect(self.dummy_update_plots)
         self.spin_threshold.valueChanged.connect(self.dummy_update_plots)
@@ -160,6 +169,9 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         self.action_workspace.triggered.connect(self.load_new_workspace)
         self.action_grid.triggered.connect(self.load_new_grid)
         self.action_write.triggered.connect(self.write_to_workspace)
+        # Extra display options (menu)
+        self.action_deviations.triggered.connect(self.set_num_deviation)
+        self.action_deviation_cutoff.triggered.connect(self.update_plots)
 
     def load_workspace(self):
         # Opens a file dialog to load a new workspace (geoh5 file)
@@ -222,6 +234,10 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         if self.extrapolation == 'median fill':
             grid_vals = deepcopy(self.grid_vals['original'])
             grid_vals[self.zeros_idx] = np.median(self.grid_vals['original'])
+            self.grid_vals['extrapolated'] = grid_vals
+        elif self.extrapolation == 'zero fill':
+            grid_vals = deepcopy(self.grid_vals['original'])
+            grid_vals[self.zeros_idx] = 0
             self.grid_vals['extrapolated'] = grid_vals
         elif self.extrapolation == 'infill':
             # Infill can be very time / resource intensive - keep the zeros to a minimum
@@ -321,7 +337,7 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         elif self.padding == 'reflect (inverse)':
             self.grid_vals.update({'padded': padding.reflect(self.grid_vals['extrapolated'],
                                         [[self.pad_left, self.pad_right], [self.pad_bot, self.pad_top]], inverse=True)})
-        elif self.padding == 'deriv. mirror':
+        elif self.padding == 'derivative mirror':
             pad_vals = padding.derivative_mirror(self.grid_vals['extrapolated'],
                                                  'lr', [self.pad_left, self.pad_right, 0, 0])
             pad_vals = padding.derivative_mirror(pad_vals,
@@ -373,7 +389,8 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         # Unless its set to blur - then calculate and apply the blur
         if self.taper == 'blur':
             binary = deepcopy(self.grid_vals['padded'])
-            binary[binary>0] = 1
+            binary[abs(binary)>0] = 1
+            # binary[self.zeros_idx] = 0
             med = deepcopy(self.grid_vals['padded'])
             med[self.grid_vals['padded']==0] = np.median(self.grid_vals['padded'][self.grid_vals['padded']!=0])
             blur = gaussian_filter(med, sigma=self.spin_taper_param.value())
@@ -481,7 +498,7 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         self.grid_vals.update({'dyASA0': dyASA0})
         self.grid_vals.update({'ASA0': ASA0})
         self.grid_vals.update({'ASA1': ASA1})
-        self.grid_vals.update({'wavenumber': -dzASA0 / ASA0})
+        self.grid_vals.update({'wavenumber': -(dzASA0 / ASA0) * 1000})
         # self.grid_vals.update({'VD': VD})
         # Trim the calculated grids back down to the original size
         # For debugging it could be interesting to view the full transformed fields, but not useful for general use.
@@ -599,7 +616,7 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         self.grid_vals.update({'dzASA0': dzASA0})
         self.grid_vals.update({'ASA0': ASA0})
         self.grid_vals.update({'ASA1': ASA1})
-        self.grid_vals.update({'wavenumber': dzASA0 / ASA0})
+        self.grid_vals.update({'wavenumber': -(dzASA0 / ASA0) * 1000})
         # self.grid_vals.update({'VD': VD})
         # self.grid_vals.update({'appsusc': np.zeros(self.padded_size)})
         # self.grid_vals.update({'magtrans': np.zeros(self.padded_size)})
@@ -624,12 +641,21 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
                 self.colourmap += '_r'
             self.update_plots()
 
+    def set_num_deviation(self):
+        val, ok_pressed = QtWidgets.QInputDialog.getDouble(self,
+                                                           '# Standard Deviations',
+                                                           'Value: ',
+                                                           self.num_std, 0.1, 100, 2)
+        if ok_pressed:
+            self.num_std = val
+            self.update_plots()
+
     def addmpl(self, fig):
         self.canvas = FigureCanvas(fig)  # Make a canvas
         self.mplvl.addWidget(self.canvas)
         self.toolbar = NavigationToolbar(canvas=self.canvas,
                                          parent=self.mplwindow, coordinates=True)
-        self.toolbar.setFixedHeight(36)
+        self.toolbar.setFixedHeight(48)
 
         self.canvas.draw()
         self.mplvl.addWidget(self.toolbar)
@@ -660,7 +686,7 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         if self.combo_taper.currentText().lower() == 'blur':
             # self.padding = 'zeros'
             self.combo_padding.setCurrentIndex(0)
-            self.combo_extrap.setCurrentIndex(0)
+            self.combo_extrap.setCurrentIndex(1)
         if self.combo_taper.currentText().lower() in ('kaiser', 'blur'):
             self.spin_taper_param.setEnabled(True)
         else:
@@ -686,13 +712,22 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         to_plot = self.active_plots
         self.plots = []
         for ii, grid in enumerate(to_plot):
-            self.plots.append(self.axes[ii].imshow(self.grid_vals[grid], cmap=self.cmap))
+            grid_vals = self.grid_vals[grid].flatten()
+            median = np.nanmedian(grid_vals)
+            std = np.nanstd(grid_vals)
+            if self.action_deviation_cutoff.isChecked():
+                vmin, vmax = (median - std*self.num_std), (median + std*self.num_std)
+            else:
+                vmin, vmax = (np.min(grid_vals), np.max(grid_vals))
+            self.plots.append(self.axes[ii].imshow(self.grid_vals[grid], cmap=self.cmap,
+                                                   vmin=vmin, vmax=vmax))
             self.axes[ii].set_title(self.titles[grid])
             self.axes[ii].format_coord = format_model_coords(self.plots[ii],
                                                              X=list(range(self.grid_vals[grid].shape[0])),
                                                              Y=list(range(self.grid_vals[grid].shape[1])),
                                                              x_label='Row', y_label='Col.',
-                                                             data_units=self.units[grid])
+                                                             data_units=self.units[grid],
+                                                             median=median, std=std)
             # Only give labels to the left- and bottom-most axes
             if ii % tiling[1] == 0:
                 self.axes[ii].set_ylabel('Grid Row')
