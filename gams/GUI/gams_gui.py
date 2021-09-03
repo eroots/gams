@@ -153,15 +153,15 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         self.extrapolation = self.combo_extrap.currentText().lower()
         self.padding = self.combo_padding.currentText().lower()
         self.taper = self.combo_taper.currentText().lower()
-        self.spin_extrap_param.setValue(int(self.nx / 2))
-        self.extrap_param = self.spin_extrap_param.value()
+        # self.spin_extrap_param.setValue(int(self.nx / 2))
+        # self.extrap_param = self.spin_extrap_param.value()
         self.taper_param = self.spin_taper_param.value()
         self.num_std = 2
         # Spin box parameters
         self.spin_taper_param.valueChanged.connect(self.dummy_update_plots)
         self.spin_threshold.valueChanged.connect(self.dummy_update_plots)
         self.spin_upward_continuation.valueChanged.connect(self.dummy_update_plots)
-        self.spin_extrap_param.valueChanged.connect(self.dummy_update_plots)
+        # self.spin_extrap_param.valueChanged.connect(self.dummy_update_plots)
         # Plot options check boxes
         self.action_link_axes.triggered.connect(self.update_plots)
         # self.check_tight_layout.clicked.connect(self.update_plots)
@@ -225,10 +225,10 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         # Extrapolate grid to fill holes and square off edges.
 
         # Don't recalculate if nothing has changed, unless force is True
-        if (self.extrapolation != self.combo_extrap.currentText().lower()) \
-        or (self.extrap_param != self.spin_extrap_param.value()) or force:
+        if (self.extrapolation != self.combo_extrap.currentText().lower()) or force:
+        # or (self.extrap_param != self.spin_extrap_param.value()) or force:
             self.extrapolation = self.combo_extrap.currentText().lower()
-            self.extrap_param = self.spin_extrap_param.value()
+            # self.extrap_param = self.spin_extrap_param.value()
         else:
             return False
         if self.extrapolation == 'median fill':
@@ -268,51 +268,51 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
                 self.grid_vals['extrapolated'] = new_vals[pad_x:pad_x+self.nx, pad_y:pad_y+self.ny]
             else:
                 self.grid_vals['extrapolated'] = deepcopy(self.grid_vals['original'])
-        elif self.extrapolation.lower() == 'mirror image':
-            grid_vals = deepcopy(self.grid_vals['original'])
-            pad = self.extrap_param
-            max_range = int(self.nx / 2)
-            if self.extrap_param + max_range > self.nx:
-                self.extrap_param, pad = self.nx - max_range - 1, self.nx - max_range - 1
-                self.spin_extrap_param.setValue(pad)
-            # Left Edge
-            for ii in range(pad, self.nx):
-                max_x = max_range
-                for jj in range(max_range-pad, max_range):
-                    if (grid_vals[ii,jj] != 0) and (grid_vals[ii,jj + 1] == 0):
-                        maxx = jj
-                for j in range(max_x+1, max_range+1):
-                    if grid_vals[ii,jj] == 0:
-                        grid_vals[ii,jj] = 2*grid_vals[ii, maxx] - grid_vals[ii, 2*maxx-jj]
-            # Right Edge
-            min_x = 0
-            # pad = self.pad_right
-            for ii in range(0, self.nx-pad):
-                for jj in range(0, pad):
-                    if (grid_vals[ii,jj] == 0) and (grid_vals[ii,jj+1] != 0):
-                        min_x = jj + 1
-                for jj in range(min_x-1, -1, -1):
-                    if grid_vals[ii,jj] == 0:
-                        grid_vals[ii,jj] = 2*grid_vals[ii,min_x] - grid_vals[2*min_x-ii,jj]
-            # Top Edge
-            # pad = self.pad_top
-            for jj in range(0, self.ny):
-                for ii in range(self.nx-pad, self.nx-1):
-                    if (grid_vals[ii,jj] != 0) and (grid_vals[ii+1,jj] == 0):
-                        max_x = ii
-                for ii in range(max_x+1, self.nx):
-                    if grid_vals[ii,jj] == 0:
-                        grid_vals[ii,jj] = 2*grid_vals[max_x,jj] - grid_vals[2*max_x-ii, jj]
-            # Bottom Edge
-            # pad = self.pad_bot
-            for jj in range(1, self.ny-1):
-                for ii in range(0, pad):
-                    if (grid_vals[ii,jj] == 0) and (grid_vals[ii+1,jj] != 0):
-                        min_x = ii + 1
-                for ii in range(min_x-1, -1, -1):
-                    if grid_vals[ii,jj] == 0:
-                        grid_vals[ii,jj] = 2*grid_vals[min_x,jj] - grid_vals[2*min_x-ii,jj]
-            self.grid_vals['extrapolated'] = grid_vals
+        # elif self.extrapolation.lower() == 'mirror image':
+        #     grid_vals = deepcopy(self.grid_vals['original'])
+        #     pad = self.extrap_param
+        #     max_range = int(self.nx / 2)
+        #     if self.extrap_param + max_range > self.nx:
+        #         self.extrap_param, pad = self.nx - max_range - 1, self.nx - max_range - 1
+        #         self.spin_extrap_param.setValue(pad)
+        #     # Left Edge
+        #     for ii in range(pad, self.nx):
+        #         max_x = max_range
+        #         for jj in range(max_range-pad, max_range):
+        #             if (grid_vals[ii,jj] != 0) and (grid_vals[ii,jj + 1] == 0):
+        #                 maxx = jj
+        #         for j in range(max_x+1, max_range+1):
+        #             if grid_vals[ii,jj] == 0:
+        #                 grid_vals[ii,jj] = 2*grid_vals[ii, maxx] - grid_vals[ii, 2*maxx-jj]
+        #     # Right Edge
+        #     min_x = 0
+        #     # pad = self.pad_right
+        #     for ii in range(0, self.nx-pad):
+        #         for jj in range(0, pad):
+        #             if (grid_vals[ii,jj] == 0) and (grid_vals[ii,jj+1] != 0):
+        #                 min_x = jj + 1
+        #         for jj in range(min_x-1, -1, -1):
+        #             if grid_vals[ii,jj] == 0:
+        #                 grid_vals[ii,jj] = 2*grid_vals[ii,min_x] - grid_vals[2*min_x-ii,jj]
+        #     # Top Edge
+        #     # pad = self.pad_top
+        #     for jj in range(0, self.ny):
+        #         for ii in range(self.nx-pad, self.nx-1):
+        #             if (grid_vals[ii,jj] != 0) and (grid_vals[ii+1,jj] == 0):
+        #                 max_x = ii
+        #         for ii in range(max_x+1, self.nx):
+        #             if grid_vals[ii,jj] == 0:
+        #                 grid_vals[ii,jj] = 2*grid_vals[max_x,jj] - grid_vals[2*max_x-ii, jj]
+        #     # Bottom Edge
+        #     # pad = self.pad_bot
+        #     for jj in range(1, self.ny-1):
+        #         for ii in range(0, pad):
+        #             if (grid_vals[ii,jj] == 0) and (grid_vals[ii+1,jj] != 0):
+        #                 min_x = ii + 1
+        #         for ii in range(min_x-1, -1, -1):
+        #             if grid_vals[ii,jj] == 0:
+        #                 grid_vals[ii,jj] = 2*grid_vals[min_x,jj] - grid_vals[2*min_x-ii,jj]
+        #     self.grid_vals['extrapolated'] = grid_vals
         return True
 
     def apply_padding(self, force=False):
@@ -691,10 +691,10 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
             self.spin_taper_param.setEnabled(True)
         else:
             self.spin_taper_param.setEnabled(False)
-        if self.combo_extrap.currentText().lower() in ('mirror image'):
-            self.spin_extrap_param.setEnabled(True)
-        else:
-            self.spin_extrap_param.setEnabled(False)
+        # if self.combo_extrap.currentText().lower() in ('mirror image'):
+        #     self.spin_extrap_param.setEnabled(True)
+        # else:
+        #     self.spin_extrap_param.setEnabled(False)
         # else:
             # self.padding = self.combo_padding.currentText().lower()
         # self.extrapolation = self.combo_extrap.currentText().lower()
