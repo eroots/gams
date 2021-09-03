@@ -2,7 +2,7 @@ from setuptools import setup
 
 
 setup(name='gams',
-      version='0.0.81',
+      version='0.0.82',
       description='GUI tool providing various transformations of magnetic data',
       url='http://github.com/eroots/gams',
       author='Eric Roots',
