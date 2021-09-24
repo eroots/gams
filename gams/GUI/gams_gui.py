@@ -433,11 +433,22 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         # block_freq is a tiled frequency matrix so we can avoid loops
         block_freq = np.tile(freq, [next_pow2, 1])
         opVDFD = np.sqrt(block_freq*block_freq + block_freq.T*block_freq.T)
+        ######################
         opHXFD = np.tile(-1j*freq, [next_pow2, 1])
         opHYFD = np.tile(-1j*freq, [next_pow2, 1]).T
-        idx = opVDFD != 0
-        opHilYFD[idx] = -1j*block_freq[idx] / opVDFD[idx]
-        opHilXFD[idx] = -1j*block_freq[idx].T / opVDFD[idx]
+        # opHYFD = np.tile(-1j*freq, [next_pow2, 1])
+        # opHXFD = np.tile(-1j*freq, [next_pow2, 1]).T
+        ######################
+        # Preemptively zeroing the terms causes problems with where the values end up.
+        # idx = opVDFD != 0
+        ######################
+        # opHilYFD[idx] = -1j*block_freq[idx] / opVDFD[idx]
+        # opHilXFD[idx] = -1j*block_freq[idx].T / opVDFD[idx]
+        # opHilXFD[idx] = -1j*block_freq[idx] / opVDFD[idx]
+        # opHilYFD[idx] = -1j*block_freq[idx].T / opVDFD[idx]
+        opHilXFD = -1j*block_freq / opVDFD
+        opHilYFD = -1j*block_freq.T / opVDFD
+        ######################
         opHilYFD[opVDFD == 0.0] = 0.0
         opHilXFD[opVDFD == 0.0] = 0.0
         # QtWidgets.QMessageBox.question(self, '', '{}, {}'.format(self.grid_vals['tapered'].shape, self.grid_vals['taper'].shape))
@@ -469,9 +480,12 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         # Calculate the horizontal derivative of the ASA0 -- assume that it is zero at the outer edges
         dxASA0=np.zeros((next_pow2,next_pow2))
         dyASA0=np.zeros((next_pow2,next_pow2))
-        dxASA0[1:-1, :] = (ASA0[2:, :] - ASA0[:-2, :]) / (self.dx*2)
-        dyASA0[:, 1:-1] = (ASA0[:, 2:] - ASA0[:, :-2]) / (self.dx*2)
-
+        ######################
+        # dxASA0[1:-1, :] = (ASA0[2:, :] - ASA0[:-2, :]) / (self.dx*2)
+        # dyASA0[:, 1:-1] = (ASA0[:, 2:] - ASA0[:, :-2]) / (self.dx*2)
+        dyASA0[1:-1, :] = (ASA0[2:, :] - ASA0[:-2, :]) / (self.dx*2)
+        dxASA0[:, 1:-1] = (ASA0[:, 2:] - ASA0[:, :-2]) / (self.dx*2)
+        ######################
         # Calculate total horizontal derivative
         dhASA0 = np.sqrt(dxASA0*dxASA0 + dyASA0*dyASA0)
         tiltAS0trans = np.zeros((next_pow2,next_pow2))
