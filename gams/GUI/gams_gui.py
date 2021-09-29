@@ -412,6 +412,9 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
 
     def calculate_grids(self, force=False):
         # Pre-process data and calculate the transformed data from it
+        # print(self.extrapolation)
+        # print(self.padding)
+        # print(self.taper)
         self.setWindowTitle(window_title + ' - Calculating extrapolation...')
         force = self.apply_extrapolation(force)
         self.setWindowTitle(window_title + ' - Calculating padding...')
@@ -440,7 +443,8 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         # opHXFD = np.tile(-1j*freq, [next_pow2, 1]).T
         ######################
         # Preemptively zeroing the terms causes problems with where the values end up.
-        # idx = opVDFD != 0
+        idx = opVDFD == 0
+        opVDFD[idx] = 1
         ######################
         # opHilYFD[idx] = -1j*block_freq[idx] / opVDFD[idx]
         # opHilXFD[idx] = -1j*block_freq[idx].T / opVDFD[idx]
@@ -451,6 +455,7 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         ######################
         opHilYFD[opVDFD == 0.0] = 0.0
         opHilXFD[opVDFD == 0.0] = 0.0
+        opVDFD[idx] = 0
         # QtWidgets.QMessageBox.question(self, '', '{}, {}'.format(self.grid_vals['tapered'].shape, self.grid_vals['taper'].shape))
         # QtWidgets.QMessageBox.question(self, '', '{}, {}, {}, {}'.format(self.pad_left, self.pad_right, self.pad_top, self.pad_bot))
         VDFD=magFD*opVDFD
@@ -734,7 +739,8 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
             else:
                 vmin, vmax = (np.min(grid_vals), np.max(grid_vals))
             self.plots.append(self.axes[ii].imshow(self.grid_vals[grid], cmap=self.cmap,
-                                                   vmin=vmin, vmax=vmax))
+                                                   vmin=vmin, vmax=vmax,
+                                                   interpolation='none'))
             self.axes[ii].set_title(self.titles[grid])
             self.axes[ii].format_coord = format_model_coords(self.plots[ii],
                                                              X=list(range(self.grid_vals[grid].shape[0])),

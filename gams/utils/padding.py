@@ -106,7 +106,7 @@ def periodic_smooth_decomp(I: np.ndarray) -> (np.ndarray, np.ndarray):
 
 
 def zeros(grid_vals, padding):
-    return np.pad(grid_vals, padding, mode='constant')
+    return np.pad(grid_vals, padding, mode='constant', constant_values=0)
 
 
 def wrap(grid_vals, padding):
