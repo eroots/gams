@@ -161,6 +161,7 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         self.spin_taper_param.valueChanged.connect(self.dummy_update_plots)
         self.spin_threshold.valueChanged.connect(self.dummy_update_plots)
         self.spin_upward_continuation.valueChanged.connect(self.dummy_update_plots)
+        self.spin_field_intensity.valueChanged.connect(self.dummy_update_plots)
         # self.spin_extrap_param.valueChanged.connect(self.dummy_update_plots)
         # Plot options check boxes
         self.action_link_axes.triggered.connect(self.update_plots)
@@ -505,7 +506,7 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         softdenom[idx] = coef[idx] - thr
         tiltAS0trans = np.arctan2(softnum, softdenom)
         magtrans = ASA0 * (np.sin(-tiltAS0trans))
-        appsusc = 1000 * magtrans / (50000*2.*np.pi)
+        appsusc = 1000 * magtrans / (self.spin_field_intensity.value()*2.*np.pi)
 
         # Properly store some of these. Others could be stored, but these are the ones that are plottable.
         self.grid_vals.update({'appsusc': appsusc})

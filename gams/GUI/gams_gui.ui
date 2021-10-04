@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1424</width>
-    <height>891</height>
+    <width>1537</width>
+    <height>1104</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -43,7 +43,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1424</width>
+     <width>1537</width>
      <height>26</height>
     </rect>
    </property>
@@ -82,7 +82,7 @@
       <rect>
        <x>421</x>
        <y>228</y>
-       <width>235</width>
+       <width>233</width>
        <height>102</height>
       </rect>
      </property>
@@ -114,7 +114,7 @@
    <property name="minimumSize">
     <size>
      <width>342</width>
-     <height>811</height>
+     <height>946</height>
     </size>
    </property>
    <property name="features">
@@ -301,10 +301,16 @@
      </item>
      <item row="13" column="1">
       <widget class="QGroupBox" name="groupBox_4">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>100</height>
+         <height>16777215</height>
         </size>
        </property>
        <property name="toolTip">
@@ -313,21 +319,8 @@
        <property name="title">
         <string>Transform Parameters</string>
        </property>
-       <layout class="QGridLayout" name="gridLayout_4">
-        <item row="1" column="2">
-         <widget class="QDoubleSpinBox" name="spin_threshold">
-          <property name="toolTip">
-           <string>Threshold value used in calculation of transformed data</string>
-          </property>
-          <property name="maximum">
-           <double>100.000000000000000</double>
-          </property>
-          <property name="singleStep">
-           <double>0.500000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
          <widget class="QLabel" name="label_6">
           <property name="toolTip">
            <string/>
@@ -337,15 +330,14 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="2">
-         <widget class="QLabel" name="label_5">
-          <property name="text">
-           <string>Threshold</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
+        <item>
          <widget class="QSpinBox" name="spin_upward_continuation">
+          <property name="maximumSize">
+           <size>
+            <width>150</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="toolTip">
            <string>Upward continuation distance used to calculate transformed data</string>
           </property>
@@ -360,6 +352,61 @@
           </property>
           <property name="value">
            <number>10</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Threshold</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="spin_threshold">
+          <property name="maximumSize">
+           <size>
+            <width>150</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Threshold value used in calculation of transformed data</string>
+          </property>
+          <property name="maximum">
+           <double>100.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.500000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_17">
+          <property name="text">
+           <string>Magnetic Field Intensity (nT)</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="spin_field_intensity">
+          <property name="maximumSize">
+           <size>
+            <width>150</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>999999999</number>
+          </property>
+          <property name="singleStep">
+           <number>1000</number>
+          </property>
+          <property name="value">
+           <number>50000</number>
           </property>
          </widget>
         </item>
@@ -541,6 +588,12 @@
      </item>
      <item row="17" column="1">
       <widget class="QGroupBox" name="groupBox_2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="title">
         <string>Plots (Pre-processing)</string>
        </property>
@@ -604,7 +657,7 @@
      <item row="14" column="1">
       <widget class="QGroupBox" name="groupBox_6">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
