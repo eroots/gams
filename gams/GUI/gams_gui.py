@@ -21,11 +21,12 @@ path = os.path.dirname(os.path.realpath(__file__))
 Ui_MainWindow, QMainWindow = loadUiType(os.path.join(path, 'gams_gui.ui'))
 window_title = 'Geoscience Analyst Magnetics Suite'
 
-# Mention install of GA in docs
-# Basically the docs should have the steps to install everything so someone can go from 0 to using it.
+
 #####################################
 
+
 class format_model_coords(object):
+    # Custom class to return cursor coordinates and grid values
     def __init__(self, im, X, Y, x_label='y', y_label='y', data_units='nT', median=None, std=None):
         self.im = im
         self.x_label = x_label
@@ -269,51 +270,6 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
                 self.grid_vals['extrapolated'] = new_vals[pad_x:pad_x+self.nx, pad_y:pad_y+self.ny]
             else:
                 self.grid_vals['extrapolated'] = deepcopy(self.grid_vals['original'])
-        # elif self.extrapolation.lower() == 'mirror image':
-        #     grid_vals = deepcopy(self.grid_vals['original'])
-        #     pad = self.extrap_param
-        #     max_range = int(self.nx / 2)
-        #     if self.extrap_param + max_range > self.nx:
-        #         self.extrap_param, pad = self.nx - max_range - 1, self.nx - max_range - 1
-        #         self.spin_extrap_param.setValue(pad)
-        #     # Left Edge
-        #     for ii in range(pad, self.nx):
-        #         max_x = max_range
-        #         for jj in range(max_range-pad, max_range):
-        #             if (grid_vals[ii,jj] != 0) and (grid_vals[ii,jj + 1] == 0):
-        #                 maxx = jj
-        #         for j in range(max_x+1, max_range+1):
-        #             if grid_vals[ii,jj] == 0:
-        #                 grid_vals[ii,jj] = 2*grid_vals[ii, maxx] - grid_vals[ii, 2*maxx-jj]
-        #     # Right Edge
-        #     min_x = 0
-        #     # pad = self.pad_right
-        #     for ii in range(0, self.nx-pad):
-        #         for jj in range(0, pad):
-        #             if (grid_vals[ii,jj] == 0) and (grid_vals[ii,jj+1] != 0):
-        #                 min_x = jj + 1
-        #         for jj in range(min_x-1, -1, -1):
-        #             if grid_vals[ii,jj] == 0:
-        #                 grid_vals[ii,jj] = 2*grid_vals[ii,min_x] - grid_vals[2*min_x-ii,jj]
-        #     # Top Edge
-        #     # pad = self.pad_top
-        #     for jj in range(0, self.ny):
-        #         for ii in range(self.nx-pad, self.nx-1):
-        #             if (grid_vals[ii,jj] != 0) and (grid_vals[ii+1,jj] == 0):
-        #                 max_x = ii
-        #         for ii in range(max_x+1, self.nx):
-        #             if grid_vals[ii,jj] == 0:
-        #                 grid_vals[ii,jj] = 2*grid_vals[max_x,jj] - grid_vals[2*max_x-ii, jj]
-        #     # Bottom Edge
-        #     # pad = self.pad_bot
-        #     for jj in range(1, self.ny-1):
-        #         for ii in range(0, pad):
-        #             if (grid_vals[ii,jj] == 0) and (grid_vals[ii+1,jj] != 0):
-        #                 min_x = ii + 1
-        #         for ii in range(min_x-1, -1, -1):
-        #             if grid_vals[ii,jj] == 0:
-        #                 grid_vals[ii,jj] = 2*grid_vals[min_x,jj] - grid_vals[2*min_x-ii,jj]
-        #     self.grid_vals['extrapolated'] = grid_vals
         return True
 
     def apply_padding(self, force=False):
@@ -345,7 +301,6 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
                                                  'ud', [0, 0, self.pad_bot, self.pad_top])
             self.grid_vals.update({'padded': pad_vals})
         return True
-        # elif self.padding == 'psd':
 
     def calculate_taper(self, force=False):
         # Calculate the taper, store it to apply later
@@ -413,9 +368,6 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
 
     def calculate_grids(self, force=False):
         # Pre-process data and calculate the transformed data from it
-        # print(self.extrapolation)
-        # print(self.padding)
-        # print(self.taper)
         self.setWindowTitle(window_title + ' - Calculating extrapolation...')
         force = self.apply_extrapolation(force)
         self.setWindowTitle(window_title + ' - Calculating padding...')
@@ -457,8 +409,6 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         opHilYFD[opVDFD == 0.0] = 0.0
         opHilXFD[opVDFD == 0.0] = 0.0
         opVDFD[idx] = 0
-        # QtWidgets.QMessageBox.question(self, '', '{}, {}'.format(self.grid_vals['tapered'].shape, self.grid_vals['taper'].shape))
-        # QtWidgets.QMessageBox.question(self, '', '{}, {}, {}, {}'.format(self.pad_left, self.pad_right, self.pad_top, self.pad_bot))
         VDFD=magFD*opVDFD
         HXFD=magFD*opHXFD
         HYFD=magFD*opHYFD
@@ -470,7 +420,6 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         HilX=np.real(np.fft.ifft2(HilXFD))
         HilY=np.real(np.fft.ifft2(HilYFD))
         ASA1=np.sqrt(VD*VD+HX*HX+HY*HY)
-        
         # Upward continue the field
         magUPFD = magFD * np.exp(-opVDFD * self.spin_upward_continuation.value())
         # Calculate hilbert transforms of this field
@@ -509,6 +458,7 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         appsusc = 1000 * magtrans / (self.spin_field_intensity.value()*2.*np.pi)
 
         # Properly store some of these. Others could be stored, but these are the ones that are plottable.
+        # Any new plotables would have to be added here.
         self.grid_vals.update({'appsusc': appsusc})
         self.grid_vals.update({'magtrans': magtrans})
         self.grid_vals.update({'tiltAS0trans': tiltAS0trans})
@@ -521,22 +471,13 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         self.grid_vals.update({'wavenumber': -(dzASA0 / ASA0) * 1000})
         # self.grid_vals.update({'VD': VD})
         # Trim the calculated grids back down to the original size
-        # For debugging it could be interesting to view the full transformed fields, but not useful for general use.
+        # For debugging it could be interesting to view the full transformed fields, but not needed for general use.
         for key, val in self.grid_vals.items():
             if key not in ('original', 'tapered', 'extrapolated', 'padded', 'taper'):
                 trimmed_vals = val[self.pad_left:self.pad_left + self.nx, self.pad_bot:self.pad_bot+self.ny]
                 trimmed_vals[self.zeros_idx] = np.nan
                 self.grid_vals.update({key: trimmed_vals})
         self.setWindowTitle(window_title)
-
-        # Some dummy updates for testing purposes
-        # self.grid_vals.update({'appsusc': np.zeros(self.padded_size)})
-        # self.grid_vals.update({'magtrans': np.zeros(self.padded_size)})
-        # self.grid_vals.update({'tiltAS0trans': np.zeros(self.padded_size)})
-        # self.grid_vals.update({'dhASA0': np.zeros(self.padded_size)})
-        # self.grid_vals.update({'dzASA0': np.zeros(self.padded_size)})
-        # self.grid_vals.update({'ASA0': np.zeros(self.padded_size)})
-        # self.grid_vals.update({'VD': np.zeros(self.padded_size)})
 
     def calculate_grids_loops(self):
         # This is the original(ish) version of the code. Loops are very slow.
@@ -637,16 +578,9 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         self.grid_vals.update({'ASA0': ASA0})
         self.grid_vals.update({'ASA1': ASA1})
         self.grid_vals.update({'wavenumber': -(dzASA0 / ASA0) * 1000})
-        # self.grid_vals.update({'VD': VD})
-        # self.grid_vals.update({'appsusc': np.zeros(self.padded_size)})
-        # self.grid_vals.update({'magtrans': np.zeros(self.padded_size)})
-        # self.grid_vals.update({'tiltAS0trans': np.zeros(self.padded_size)})
-        # self.grid_vals.update({'dhASA0': np.zeros(self.padded_size)})
-        # self.grid_vals.update({'dzASA0': np.zeros(self.padded_size)})
-        # self.grid_vals.update({'ASA0': np.zeros(self.padded_size)})
-        # self.grid_vals.update({'VD': np.zeros(self.padded_size)})
 
     def invert_cmap(self):
+        # Flip the selected colour map.
         if self.action_invert.isChecked():
             self.colourmap += '_r'
         else:
@@ -654,6 +588,7 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         self.update_plots()
 
     def set_colourmap(self):
+        # Set the colour map based on checked menu option
         new_cmap = self.colour_group.checkedAction().text()
         if new_cmap != self.colourmap:
             self.colourmap = new_cmap
@@ -711,14 +646,6 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
             self.spin_taper_param.setEnabled(True)
         else:
             self.spin_taper_param.setEnabled(False)
-        # if self.combo_extrap.currentText().lower() in ('mirror image'):
-        #     self.spin_extrap_param.setEnabled(True)
-        # else:
-        #     self.spin_extrap_param.setEnabled(False)
-        # else:
-            # self.padding = self.combo_padding.currentText().lower()
-        # self.extrapolation = self.combo_extrap.currentText().lower()
-        # self.taper = self.combo_taper.currentText().lower()
         if self.auto_update:
             self.calculate_grids()
             self.update_plots()
@@ -862,8 +789,6 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         return self.grid_vals['original'] == 0
 
 def main():
-    # If a model file is not specified, a uniformly spaced model should be generated based on the data.the
-    # i.e., use sites as bounds, and use smallest period as a starting point for cell sizes.
     app = QtWidgets.QApplication(sys.argv)
     viewer = GamsViewer()
     viewer.setWindowTitle(window_title)
