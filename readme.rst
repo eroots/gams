@@ -40,6 +40,8 @@ Once installed, the GUI can be launched from the command line as::
 
 A file dialog box will open where you can load the Geoscience Analyst workspace (.geoh5 file) you wish to work from. A second dialog box will open where you can select the specific grid you want to work on. Note that currently all grids from the selected workspace will be displayed and there is no check that the grid you select is magnetic data.
 
+Test data is available in the gams/resources folder.
+
 Documentation
 ====
 
