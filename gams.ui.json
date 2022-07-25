@@ -1,0 +1,35 @@
+{
+    "title": "GAMS",
+    "geoh5": "",
+    "run_command": "gams.gams",
+    "run_command_boolean": {
+        "value": false,
+        "label": "Run python module ",
+        "tooltip": "Warning: launches process to run python model on save",
+        "main": true
+    },
+    "monitoring_directory": "",
+    "conda_environment": "gams",
+    "conda_environment_boolean": false,
+    "workspace": "",
+    "grid": {
+        "meshType": [
+            "{48f5054a-1c5c-4ca4-9048-80f36dc60a06}"
+        ],
+        "main": true,
+        "group": "Data Selection",
+        "label": "Object",
+        "value": ""
+    },
+    "data": {
+        "main": true,
+        "group": "Data Selection",
+        "association": [
+            "Cell"
+        ],
+        "dataType": "Float",
+        "label": "Data",
+        "parent": "grid",
+        "value": ""
+    }
+}
