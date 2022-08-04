@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import scipy.signal as signal
 from scipy.ndimage import gaussian_filter
 from scipy.interpolate import griddata
@@ -6,6 +8,7 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 import numpy as np
 from copy import deepcopy
 from geoh5py.workspace import Workspace
+from geoh5py.ui_json.input_file import InputFile
 from matplotlib import cm
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import (
@@ -64,7 +67,7 @@ class format_model_coords(object):
                                                                        self.median, self.std)
 
 class GamsViewer(QMainWindow, Ui_MainWindow):
-    def __init__(self):
+    def __init__(self, input_file: InputFile = None):
         super(GamsViewer, self).__init__()
         # Dictionaries of the units / titles for plotted grids
         self.units = {'appsusc': r'SI $\mathregular{\times 10 ^{-3}}$',
@@ -107,15 +110,18 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         self.path = ''
         self.initialized = False
         self.setupUi(self)
-        # self.workspace = Workspace('E:/my_modules/magnetics/test_workspace.geoh5')
-        self.load_workspace()
-        self.load_grid()
+
+        if input_file is None:
+            self.load_workspace()
+            self.load_grid()
+        else:
+            self.uijson_initialize(input_file)
+
         if self.initialized:
             self.setup_widgets()
             self.set_colourmap()
             self.calculate_grids(force=True)
             self.update_plots()
-        
 
     def setup_widgets(self):
         # Initialize and connect widgets
@@ -769,6 +775,30 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         # print(self.check_tight_layout.checkState() > 0)
         self.canvas.draw()
 
+    def uijson_initialize(self, input_file: InputFile):
+        """
+        Initialize the UI from ui.json file
+
+        Parameters
+        ----------
+        input_file: InputFile object with parameters
+
+        Returns
+        -------
+
+        """
+        self.workspace = input_file.workspace
+        self.grid_name = input_file.data["grid"].name
+        self.grid = input_file.data["grid"]
+        self.grid_vals = {}
+        vals = input_file.data["data"].values
+        vals[np.isnan(vals)] = 0
+        self.centroids = self.grid.centroids
+        self.dx = np.diff(self.centroids[:, 0])[0]
+        self.ny, self.nx = self.grid.shape
+        self.grid_vals.update({'original': np.flipud(np.reshape(vals, [self.nx, self.ny]))})
+        self.initialized = True
+
     def write_to_workspace(self):
         # Write active plot grids to the current workspace.
         # If those grids already exist, by default they will be written with sequential numbering.
@@ -870,7 +900,12 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
-    viewer = GamsViewer()
+
+    ifile = None
+    if len(sys.argv) > 1:
+        ifile = InputFile.read_ui_json(sys.argv[1])
+
+    viewer = GamsViewer(input_file=ifile)
     viewer.setWindowTitle(window_title)
     viewer.show()
     ret = app.exec_()
