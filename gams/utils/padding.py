@@ -23,7 +23,7 @@ def derivative_mirror(grid_vals, direction, pads, mirror='inverse'):
             pad_vals[pad_left+nx+ii,:] = pad_vals[pad_left+nx+ii-1, :] + sign*deriv[nx-ii-2, :]
     elif direction == 'ud':
         deriv = np.diff(grid_vals, axis=1)
-        pad_vals = np.pad(grid_vals, [[0, 0], [pad_bot, pad_top]])
+        pad_vals = np.pad(grid_vals, [[0, 0], [pad_bot, pad_top]], mode='constant')
         # deriv = np.diff(pad_vals, axis=1)
         for ii in range(pad_bot):
             # pad_vals[:,pad_bot-1-ii] = pad_vals[:, pad_bot-ii] + deriv[:, pad_bot+ii+1]

@@ -79,8 +79,11 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
                       'wavenumber': '1/km',
                       'original': 'nT',
                       'padded': 'nT',
+                      'filtered': 'nT',
                       'tapered': 'nT',
                       'taper': '',
+                      'fft': '',
+                      'filtered_fft': '',
                       'extrapolated': 'nT'}
         self.titles = {'appsusc': 'Apparent Susceptiblity',
                        'magtrans': 'Magnetic Field at the Pole with Vertical Dip',
@@ -94,9 +97,13 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
                        'wavenumber': 'Zeroth-Order Local Wavenumber',
                        'original': 'Magnetic Field',
                        'padded': 'Padded Mag. Field',
+                       'filtered': 'Filtered Mag. Field',
+                       'fft': 'Amplitude spectrum',
+                       'filtered_fft': 'Filtered Amplitude Spectrum',
                        'tapered': 'Tapered Mag. Field',
                        'taper': 'Taper',
                        'extrapolated': 'Extrapolated Mag. Field'}
+        self.filter_order = 3
         self.path = ''
         self.initialized = False
         self.setupUi(self)
@@ -132,8 +139,12 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         self.combo_extrap.currentIndexChanged.connect(self.dummy_update_plots)
         self.combo_padding.currentIndexChanged.connect(self.dummy_update_plots)
         self.combo_taper.currentIndexChanged.connect(self.dummy_update_plots)
+        self.combo_filter.currentIndexChanged.connect(self.dummy_update_plots)
         # Plot selections
         self.check_original.clicked.connect(self.update_plots)
+        self.check_filtered.clicked.connect(self.update_plots)
+        self.check_fft.clicked.connect(self.update_plots)
+        self.check_filtered_fft.clicked.connect(self.update_plots)
         self.check_tapered.clicked.connect(self.update_plots)
         self.check_padded.clicked.connect(self.update_plots)
         self.check_extrapolated.clicked.connect(self.update_plots)
@@ -158,11 +169,26 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         # self.extrap_param = self.spin_extrap_param.value()
         self.taper_param = self.spin_taper_param.value()
         self.num_std = 2
+        self.spin_low_cut.setMinimum(int(2*(self.dx + 1)))
+        self.spin_low_cut.setMaximum(int(self.nx * self.dx))
+        self.spin_low_cut.setValue(int(2*(self.dx + 1)))
+        self.spin_high_cut.setMinimum(int(2*(self.dx + 2)))
+        self.spin_high_cut.setMaximum(int(self.nx * self.dx))
+        self.spin_high_cut.setValue(int(self.nx * self.dx))
+        self.spin_dc_buffer.setValue(0)
+        self.spin_dc_buffer.setMinimum(0)
+        self.spin_dc_buffer.setMaximum(int(self.nx * self.dx / 2))
+        self.spin_dc_buffer.setSingleStep(int(self.dx))
+        self.low_cut = self.spin_low_cut.value()
+        self.high_cut = self.spin_high_cut.value()
         # Spin box parameters
         self.spin_taper_param.valueChanged.connect(self.dummy_update_plots)
         self.spin_threshold.valueChanged.connect(self.dummy_update_plots)
         self.spin_upward_continuation.valueChanged.connect(self.dummy_update_plots)
         self.spin_field_intensity.valueChanged.connect(self.dummy_update_plots)
+        self.spin_low_cut.valueChanged.connect(self.dummy_update_plots)
+        self.spin_high_cut.valueChanged.connect(self.dummy_update_plots)
+        self.spin_dc_buffer.valueChanged.connect(self.dummy_update_plots)
         # self.spin_extrap_param.valueChanged.connect(self.dummy_update_plots)
         # Plot options check boxes
         self.action_link_axes.triggered.connect(self.update_plots)
@@ -315,7 +341,7 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
             taper_vals = np.ones((self.padded_size, self.padded_size))
             # Periodic-Smooth Decomposition
             # Based on code from https://github.com/jacobkimmel/ps_decomp/blob/master/psd.py
-            self.grid_vals.update({'tapered': padding.psd(self.grid_vals['padded'], padding=None)})
+            self.grid_vals.update({'tapered': padding.psd(self.grid_vals['filtered'], padding=None)})
         elif self.taper == 'blur':
             # Blur doesn't actually use a taper - set it to ones
             taper_vals = np.ones((self.padded_size, self.padded_size))
@@ -361,6 +387,52 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         else:
             self.grid_vals.update({'tapered': self.grid_vals['padded'] * self.grid_vals['taper']})
 
+    def apply_filter(self, force=False):
+        # Apply the chosen wavelength filter (if any)
+        dc_buffer = self.dx * self.nx - self.spin_dc_buffer.value()
+        if self.spin_low_cut.value() >= self.spin_high_cut.value():
+            self.spin_low_cut.setValue(self.low_cut)
+            self.spin_high_cut.setValue(self.high_cut)
+        else:
+            self.low_cut = self.spin_low_cut.value()
+            self.high_cut = self.spin_high_cut.value()
+        self.grid_vals['filtered'] = deepcopy(self.grid_vals['tapered'])
+        self.grid_vals['fft'] = abs(np.fft.fftshift(np.fft.fft2(self.grid_vals['filtered'])))
+        self.grid_vals['filtered_fft'] = deepcopy(self.grid_vals['fft'])
+        if self.combo_filter.currentText().lower() == 'none':
+            if force:
+                return True
+            else:
+                return False
+        if self.combo_filter.currentText().lower() == 'lowpass':
+            b, a = signal.butter(self.filter_order, [1/self.low_cut], fs=1/self.dx, btype='low')
+        elif self.combo_filter.currentText().lower() == 'highpass':
+            b, a = signal.butter(self.filter_order, [1/self.high_cut], fs=1/self.dx, btype='high')
+            b2, a2 = signal.butter(self.filter_order, [1/(dc_buffer)], fs=1/self.dx, btype='low')
+        elif self.combo_filter.currentText().lower() == 'bandpass':
+            b, a = signal.butter(self.filter_order, [1/self.high_cut, 1/self.low_cut], fs=1/self.dx, btype='band')
+            b2, a2 = signal.butter(self.filter_order, [1/(dc_buffer)], fs=1/self.dx, btype='low')
+        w, h = signal.freqz(b, a, fs=1/self.dx, worN=self.padded_size, whole=True)
+        w1 = np.tile(np.abs(h), [self.padded_size, 1])
+        w2 = np.tile(np.abs(h), [self.padded_size, 1]).T
+        filt = np.fft.fftshift(w1 * w2)
+        self.grid_vals['fft'] = np.fft.fftshift(np.fft.fft2(self.grid_vals['tapered']))
+        self.grid_vals['filtered_fft'] = self.grid_vals['fft'] * filt
+        # Add back in the DC component
+        if self.combo_filter.currentText().lower() in ['highpass', 'bandpass'] and self.spin_dc_buffer.value() != 0:
+            w, h = signal.freqz(b2, a2, fs=1/self.dx, worN=self.padded_size, whole=True)
+            # h = np.flip(h)
+            h = 1 - h
+            w1 = np.tile(np.abs(h), [self.padded_size, 1])
+            w2 = np.tile(np.abs(h), [self.padded_size, 1]).T
+            filt = np.fft.fftshift(w1 * w2)
+            dc_component = self.grid_vals['fft'] * filt
+            self.grid_vals['filtered_fft'] += dc_component
+        self.grid_vals['filtered'] = np.real(np.fft.ifft2(np.fft.ifftshift(self.grid_vals['filtered_fft'])))
+        self.grid_vals['filtered_fft'] = np.abs(self.grid_vals['filtered_fft'])
+        self.grid_vals['fft'] = np.abs(self.grid_vals['fft'])
+        # self.grid_vals['fft'] = np.abs(self.grid_vals['fft'])
+
     def recalculate(self):
         # Recalculate grids and plot them
         self.calculate_grids()
@@ -372,13 +444,15 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         force = self.apply_extrapolation(force)
         self.setWindowTitle(window_title + ' - Calculating padding...')
         force = self.apply_padding(force)
+        # force = self.apply_filter(force)
         self.setWindowTitle(window_title + ' - Calculating taper...')
         self.calculate_taper(force)
         self.apply_taper()
+        force = self.apply_filter(force)
         self.setWindowTitle(window_title + ' - Calculating fields...')
         # Calculate all those fields
         next_pow2 = self.padded_size
-        tapered_vals = self.grid_vals['tapered']
+        tapered_vals = self.grid_vals['filtered']
         opVDFD=np.zeros((next_pow2,next_pow2),dtype=complex)
         opHXFD=np.zeros((next_pow2,next_pow2),dtype=complex)
         opHYFD=np.zeros((next_pow2,next_pow2),dtype=complex)
@@ -473,7 +547,7 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         # Trim the calculated grids back down to the original size
         # For debugging it could be interesting to view the full transformed fields, but not needed for general use.
         for key, val in self.grid_vals.items():
-            if key not in ('original', 'tapered', 'extrapolated', 'padded', 'taper'):
+            if key not in ('original', 'tapered', 'extrapolated', 'padded', 'taper', 'fft', 'filtered_fft', 'filtered'):
                 trimmed_vals = val[self.pad_left:self.pad_left + self.nx, self.pad_bot:self.pad_bot+self.ny]
                 trimmed_vals[self.zeros_idx] = np.nan
                 self.grid_vals.update({key: trimmed_vals})
@@ -722,6 +796,12 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
             plots.append('tapered')
         if self.check_taper.checkState():
             plots.append('taper')
+        if self.check_filtered.checkState():
+            plots.append('filtered')
+        if self.check_fft.checkState():
+            plots.append('fft')
+        if self.check_filtered_fft.checkState():
+            plots.append('filtered_fft')
         if self.check_ASA0.checkState():
             plots.append('ASA0')
         if self.check_ASA1.checkState():

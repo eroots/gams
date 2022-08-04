@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1537</width>
-    <height>1104</height>
+    <width>1617</width>
+    <height>1187</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -43,7 +43,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1537</width>
+     <width>1617</width>
      <height>26</height>
     </rect>
    </property>
@@ -82,7 +82,7 @@
       <rect>
        <x>421</x>
        <y>228</y>
-       <width>233</width>
+       <width>235</width>
        <height>102</height>
       </rect>
      </property>
@@ -114,7 +114,7 @@
    <property name="minimumSize">
     <size>
      <width>342</width>
-     <height>946</height>
+     <height>1152</height>
     </size>
    </property>
    <property name="features">
@@ -131,6 +131,80 @@
         <string>Pre-processing</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_5">
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="text">
+           <string>Padding Style</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="combo_extrap">
+          <property name="toolTip">
+           <string>Interpolation method for infilling holes and squaring grid edges</string>
+          </property>
+          <item>
+           <property name="text">
+            <string>Median Fill</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Zero Fill</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Nearest</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Linear</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Cubic</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QComboBox" name="combo_padding">
+          <property name="toolTip">
+           <string>Padding method for FFT pre-processing</string>
+          </property>
+          <item>
+           <property name="text">
+            <string>Zeros</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Wrap</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Reflect</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Reflect (Inverse)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Derivative Mirror</string>
+           </property>
+          </item>
+         </widget>
+        </item>
         <item row="8" column="0">
          <widget class="QLabel" name="label">
           <property name="toolTip">
@@ -138,6 +212,26 @@
           </property>
           <property name="text">
            <string>Taper Parameter</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="text">
+           <string>Taper</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="text">
+           <string>Extrapolation</string>
           </property>
          </widget>
         </item>
@@ -183,16 +277,6 @@
           </item>
          </widget>
         </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="toolTip">
-           <string/>
-          </property>
-          <property name="text">
-           <string>Extrapolation</string>
-          </property>
-         </widget>
-        </item>
         <item row="8" column="1">
          <widget class="QDoubleSpinBox" name="spin_taper_param">
           <property name="enabled">
@@ -210,90 +294,6 @@
           <property name="decimals">
            <number>1</number>
           </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="toolTip">
-           <string/>
-          </property>
-          <property name="text">
-           <string>Padding Style</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QComboBox" name="combo_padding">
-          <property name="toolTip">
-           <string>Padding method for FFT pre-processing</string>
-          </property>
-          <item>
-           <property name="text">
-            <string>Zeros</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Wrap</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Reflect</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Reflect (Inverse)</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Derivative Mirror</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="toolTip">
-           <string/>
-          </property>
-          <property name="text">
-           <string>Taper</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QComboBox" name="combo_extrap">
-          <property name="toolTip">
-           <string>Interpolation method for infilling holes and squaring grid edges</string>
-          </property>
-          <item>
-           <property name="text">
-            <string>Median Fill</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Zero Fill</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Nearest</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Linear</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Cubic</string>
-           </property>
-          </item>
          </widget>
         </item>
        </layout>
@@ -631,7 +631,7 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="6" column="0">
          <widget class="QCheckBox" name="check_tapered">
           <property name="toolTip">
            <string>Plots extrapolated grid with padding and taper</string>
@@ -641,13 +641,34 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
+        <item row="7" column="0">
          <widget class="QCheckBox" name="check_taper">
           <property name="toolTip">
            <string>Controls taper roll off for Kaiser and Blur tapers</string>
           </property>
           <property name="text">
            <string>Taper</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QCheckBox" name="check_filtered">
+          <property name="text">
+           <string>Filtered</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QCheckBox" name="check_fft">
+          <property name="text">
+           <string>Amplitude spectrum</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QCheckBox" name="check_filtered_fft">
+          <property name="text">
+           <string>Filtered Spectrum</string>
           </property>
          </widget>
         </item>
@@ -703,6 +724,76 @@
            <string>Automatic Update</string>
           </property>
          </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QGroupBox" name="groupBox_3">
+       <property name="title">
+        <string>Wavelength Filter</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="1">
+         <widget class="QComboBox" name="combo_filter">
+          <item>
+           <property name="text">
+            <string>None</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Bandpass</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Highpass</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Lowpass</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QSpinBox" name="spin_low_cut"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_20">
+          <property name="text">
+           <string>Type</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_18">
+          <property name="text">
+           <string>Lowest wavelength (m)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QSpinBox" name="spin_high_cut"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_19">
+          <property name="text">
+           <string>Highest wavelength (m)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_21">
+          <property name="text">
+           <string>DC buffer</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QSpinBox" name="spin_dc_buffer"/>
         </item>
        </layout>
       </widget>
