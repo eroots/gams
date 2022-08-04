@@ -28,6 +28,7 @@ Dependencies
 * scipy
 * pyqt
 * geoh5py
+* scikit-image
 
 Installing GAMS through pip + git will result in these libraries being installed in your current python environment.
 

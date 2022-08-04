@@ -1,4 +1,5 @@
 import scipy.signal as signal
+from skimage.filters import butterworth
 from scipy.ndimage import gaussian_filter
 from scipy.interpolate import griddata
 from PyQt5.uic import loadUiType
@@ -175,10 +176,10 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         self.spin_high_cut.setMinimum(int(2*(self.dx + 2)))
         self.spin_high_cut.setMaximum(int(self.nx * self.dx))
         self.spin_high_cut.setValue(int(self.nx * self.dx))
-        self.spin_dc_buffer.setValue(0)
-        self.spin_dc_buffer.setMinimum(0)
-        self.spin_dc_buffer.setMaximum(int(self.nx * self.dx / 2))
-        self.spin_dc_buffer.setSingleStep(int(self.dx))
+        # self.spin_dc_buffer.setValue(0)
+        # self.spin_dc_buffer.setMinimum(0)
+        # self.spin_dc_buffer.setMaximum(int(self.nx * self.dx / 2))
+        # self.spin_dc_buffer.setSingleStep(int(self.dx))
         self.low_cut = self.spin_low_cut.value()
         self.high_cut = self.spin_high_cut.value()
         # Spin box parameters
@@ -188,7 +189,7 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         self.spin_field_intensity.valueChanged.connect(self.dummy_update_plots)
         self.spin_low_cut.valueChanged.connect(self.dummy_update_plots)
         self.spin_high_cut.valueChanged.connect(self.dummy_update_plots)
-        self.spin_dc_buffer.valueChanged.connect(self.dummy_update_plots)
+        # self.spin_dc_buffer.valueChanged.connect(self.dummy_update_plots)
         # self.spin_extrap_param.valueChanged.connect(self.dummy_update_plots)
         # Plot options check boxes
         self.action_link_axes.triggered.connect(self.update_plots)
@@ -389,7 +390,7 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
 
     def apply_filter(self, force=False):
         # Apply the chosen wavelength filter (if any)
-        dc_buffer = self.dx * self.nx - self.spin_dc_buffer.value()
+        # dc_buffer = self.dx * self.nx - self.spin_dc_buffer.value()
         if self.spin_low_cut.value() >= self.spin_high_cut.value():
             self.spin_low_cut.setValue(self.low_cut)
             self.spin_high_cut.setValue(self.high_cut)
@@ -404,33 +405,65 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
                 return True
             else:
                 return False
+        #######################
+        # Naive FFT-based filtering approach
+
+        # if self.combo_filter.currentText().lower() == 'lowpass':
+        #     b, a = signal.butter(self.filter_order, [1/self.low_cut], fs=1/self.dx, btype='low')
+        # elif self.combo_filter.currentText().lower() == 'highpass':
+        #     b, a = signal.butter(self.filter_order, [1/self.high_cut], fs=1/self.dx, btype='high')
+        #     b2, a2 = signal.butter(self.filter_order, [1/(dc_buffer)], fs=1/self.dx, btype='low')
+        # elif self.combo_filter.currentText().lower() == 'bandpass':
+        #     b, a = signal.butter(self.filter_order, [1/self.high_cut, 1/self.low_cut], fs=1/self.dx, btype='band')
+        #     b2, a2 = signal.butter(self.filter_order, [1/(dc_buffer)], fs=1/self.dx, btype='low')
+        # w, h = signal.freqz(b, a, fs=1/self.dx, worN=self.padded_size, whole=True)
+        # w1 = np.tile(np.abs(h), [self.padded_size, 1])
+        # w2 = np.tile(np.abs(h), [self.padded_size, 1]).T
+        # filt = np.fft.fftshift(w1 * w2)
+        # self.grid_vals['fft'] = np.fft.fftshift(np.fft.fft2(self.grid_vals['tapered']))
+        # self.grid_vals['filtered_fft'] = self.grid_vals['fft'] * filt
+        # # Add back in the DC component
+        # if self.combo_filter.currentText().lower() in ['highpass', 'bandpass'] and self.spin_dc_buffer.value() != 0:
+        #     w, h = signal.freqz(b2, a2, fs=1/self.dx, worN=self.padded_size, whole=True)
+        #     # h = np.flip(h)
+        #     h = 1 - h
+        #     w1 = np.tile(np.abs(h), [self.padded_size, 1])
+        #     w2 = np.tile(np.abs(h), [self.padded_size, 1]).T
+        #     filt = np.fft.fftshift(w1 * w2)
+        #     dc_component = self.grid_vals['fft'] * filt
+        #     self.grid_vals['filtered_fft'] += dc_component
+        # self.grid_vals['filtered'] = np.real(np.fft.ifft2(np.fft.ifftshift(self.grid_vals['filtered_fft'])))
+        # self.grid_vals['filtered_fft'] = np.abs(self.grid_vals['filtered_fft'])
+        # self.grid_vals['fft'] = np.abs(self.grid_vals['fft'])
+        ##########################
+        # Filtering using skimage.filters.butterworth
+        # Also flip high/low to make things clearer for the user
+        # 'High'
+        low_cut = self.low_cut / self.dx
+        high_cut = self.high_cut / self.dx
         if self.combo_filter.currentText().lower() == 'lowpass':
-            b, a = signal.butter(self.filter_order, [1/self.low_cut], fs=1/self.dx, btype='low')
+            self.grid_vals['filtered'] = butterworth(self.grid_vals['tapered'],
+                                                     cutoff_frequency_ratio=1/low_cut,
+                                                     high_pass=False,
+                                                     order=self.filter_order)
         elif self.combo_filter.currentText().lower() == 'highpass':
-            b, a = signal.butter(self.filter_order, [1/self.high_cut], fs=1/self.dx, btype='high')
-            b2, a2 = signal.butter(self.filter_order, [1/(dc_buffer)], fs=1/self.dx, btype='low')
+            self.grid_vals['filtered'] = butterworth(self.grid_vals['tapered'],
+                                                     cutoff_frequency_ratio=1/high_cut,
+                                                     high_pass=True,
+                                                     order=self.filter_order)
         elif self.combo_filter.currentText().lower() == 'bandpass':
-            b, a = signal.butter(self.filter_order, [1/self.high_cut, 1/self.low_cut], fs=1/self.dx, btype='band')
-            b2, a2 = signal.butter(self.filter_order, [1/(dc_buffer)], fs=1/self.dx, btype='low')
-        w, h = signal.freqz(b, a, fs=1/self.dx, worN=self.padded_size, whole=True)
-        w1 = np.tile(np.abs(h), [self.padded_size, 1])
-        w2 = np.tile(np.abs(h), [self.padded_size, 1]).T
-        filt = np.fft.fftshift(w1 * w2)
-        self.grid_vals['fft'] = np.fft.fftshift(np.fft.fft2(self.grid_vals['tapered']))
-        self.grid_vals['filtered_fft'] = self.grid_vals['fft'] * filt
-        # Add back in the DC component
-        if self.combo_filter.currentText().lower() in ['highpass', 'bandpass'] and self.spin_dc_buffer.value() != 0:
-            w, h = signal.freqz(b2, a2, fs=1/self.dx, worN=self.padded_size, whole=True)
-            # h = np.flip(h)
-            h = 1 - h
-            w1 = np.tile(np.abs(h), [self.padded_size, 1])
-            w2 = np.tile(np.abs(h), [self.padded_size, 1]).T
-            filt = np.fft.fftshift(w1 * w2)
-            dc_component = self.grid_vals['fft'] * filt
-            self.grid_vals['filtered_fft'] += dc_component
-        self.grid_vals['filtered'] = np.real(np.fft.ifft2(np.fft.ifftshift(self.grid_vals['filtered_fft'])))
-        self.grid_vals['filtered_fft'] = np.abs(self.grid_vals['filtered_fft'])
-        self.grid_vals['fft'] = np.abs(self.grid_vals['fft'])
+            low_pass = butterworth(self.grid_vals['tapered'],
+                                   cutoff_frequency_ratio=1/low_cut,
+                                   high_pass=False,
+                                   order=self.filter_order)
+            high_pass = butterworth(self.grid_vals['tapered'],
+                                    cutoff_frequency_ratio=1/high_cut,
+                                    high_pass=True,
+                                    order=self.filter_order)
+            self.grid_vals['filtered'] = self.grid_vals['tapered'] - low_pass - high_pass
+        self.grid_vals['fft'] = np.abs(np.fft.fftshift(np.fft.fft2(self.grid_vals['tapered'])))
+        self.grid_vals['filtered_fft'] = np.abs(np.fft.fftshift(np.fft.fft2(self.grid_vals['filtered'])))
+        
         # self.grid_vals['fft'] = np.abs(self.grid_vals['fft'])
 
     def recalculate(self):
@@ -458,7 +491,7 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         opHYFD=np.zeros((next_pow2,next_pow2),dtype=complex)
         opHilXFD=np.zeros((next_pow2,next_pow2),dtype=complex)
         opHilYFD=np.zeros((next_pow2,next_pow2),dtype=complex)
-        magFD = np.fft.fft2(self.grid_vals['tapered'])
+        magFD = np.fft.fft2(self.grid_vals['filtered'])
         freq = 2.*np.pi*np.fft.fftfreq(next_pow2, d=self.dx)
         # block_freq is a tiled frequency matrix so we can avoid loops
         block_freq = np.tile(freq, [next_pow2, 1])
@@ -547,7 +580,7 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         # Trim the calculated grids back down to the original size
         # For debugging it could be interesting to view the full transformed fields, but not needed for general use.
         for key, val in self.grid_vals.items():
-            if key not in ('original', 'tapered', 'extrapolated', 'padded', 'taper', 'fft', 'filtered_fft', 'filtered'):
+            if key not in ('original', 'tapered', 'extrapolated', 'padded', 'taper', 'fft', 'filtered_fft'):
                 trimmed_vals = val[self.pad_left:self.pad_left + self.nx, self.pad_bot:self.pad_bot+self.ny]
                 trimmed_vals[self.zeros_idx] = np.nan
                 self.grid_vals.update({key: trimmed_vals})

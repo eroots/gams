@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1617</width>
-    <height>1187</height>
+    <height>1199</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -734,8 +734,31 @@
         <string>Wavelength Filter</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_4">
+        <item row="1" column="1">
+         <widget class="QSpinBox" name="spin_low_cut"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_20">
+          <property name="text">
+           <string>Type</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_18">
+          <property name="text">
+           <string>Lowest Wavelength (m)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QSpinBox" name="spin_high_cut"/>
+        </item>
         <item row="0" column="1">
          <widget class="QComboBox" name="combo_filter">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Filter options&lt;/p&gt;&lt;p&gt;Lowpass: Rejects spatial frequencies higher than those corresponding to 'Low Cut'&lt;/p&gt;&lt;p&gt;Highpass: Rejects spatial frequencies lower than those corresponding to 'High Cut'&lt;/p&gt;&lt;p&gt;Bandpass: Rejects spatial frequencies outside the range from 'High Cut' to 'Low Cut'&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <item>
            <property name="text">
             <string>None</string>
@@ -758,42 +781,12 @@
           </item>
          </widget>
         </item>
-        <item row="2" column="1">
-         <widget class="QSpinBox" name="spin_low_cut"/>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_20">
-          <property name="text">
-           <string>Type</string>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="0">
-         <widget class="QLabel" name="label_18">
-          <property name="text">
-           <string>Lowest wavelength (m)</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QSpinBox" name="spin_high_cut"/>
-        </item>
-        <item row="3" column="0">
          <widget class="QLabel" name="label_19">
           <property name="text">
-           <string>Highest wavelength (m)</string>
+           <string>Highest Wavelength (m)</string>
           </property>
          </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_21">
-          <property name="text">
-           <string>DC buffer</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QSpinBox" name="spin_dc_buffer"/>
         </item>
        </layout>
       </widget>
