@@ -234,7 +234,18 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
             self.grid_name = file
             self.grid = self.workspace.get_entity(file)[0]
             self.grid_vals = {}
-            vals = self.grid.get_data(file)[0].values
+            try:
+                vals = self.grid.get_data(file)[0].values
+            except IndexError:
+                fields = self.grid.get_data_list()
+                if 'Visual Parameters' in fields:
+                    fields.remove('Visual Parameters')
+                if len(fields) > 1:
+                    field, ret = QtWidgets.QInputDialog.getItem(self, 'Select Field',
+                                                      'List of fields', fields, 0, False)
+                    vals = self.grid.get_data(field)[0].values
+                else:
+                    vals = self.grid.get_data(fields[0])[0].values
             vals[np.isnan(vals)] = 0
             self.centroids = self.grid.centroids
             self.dx = np.diff(self.centroids[:,0])[0]
@@ -348,7 +359,9 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
             taper_vals = np.ones((self.padded_size, self.padded_size))
             # Periodic-Smooth Decomposition
             # Based on code from https://github.com/jacobkimmel/ps_decomp/blob/master/psd.py
-            self.grid_vals.update({'tapered': padding.psd(self.grid_vals['filtered'], padding=None)})
+            # self.grid_vals.update({'tapered': padding.psd(self.grid_vals['filtered'], padding=None)})
+            self.grid_vals.update({'tapered': padding.psd(self.grid_vals['padded'],
+                                                         padding=None)})
         elif self.taper == 'blur':
             # Blur doesn't actually use a taper - set it to ones
             taper_vals = np.ones((self.padded_size, self.padded_size))
@@ -522,6 +535,8 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
         opHilYFD[opVDFD == 0.0] = 0.0
         opHilXFD[opVDFD == 0.0] = 0.0
         opVDFD[idx] = 0
+        # print(magFD.shape)
+        # print(opVDFD.shape)
         VDFD=magFD*opVDFD
         HXFD=magFD*opHXFD
         HYFD=magFD*opHYFD
