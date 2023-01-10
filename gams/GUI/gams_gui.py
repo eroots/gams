@@ -238,6 +238,7 @@ class GamsViewer(QMainWindow, Ui_MainWindow):
                 vals = self.grid.get_data(file)[0].values
             except IndexError:
                 fields = self.grid.get_data_list()
+                print(fields)
                 if 'Visual Parameters' in fields:
                     fields.remove('Visual Parameters')
                 if len(fields) > 1:
