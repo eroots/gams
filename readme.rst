@@ -11,6 +11,8 @@ GAMS can be installed with pip + git using::
 
 	pip install git+https://github.com/eroots/gams.git
 
+Note, that if you are installing GAMS to a newly created conda environment, you must install pip into that environment first.
+
 Alternatively, the repository can be manually downloaded and installed using the install script, i.e., by navigating to the GAMS folder and running::
 
 	python setup.py install
