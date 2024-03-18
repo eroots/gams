@@ -4,6 +4,14 @@ GAMS - Geoscience Analyst Magnetics Suite
 GAMS is a lightweight GUI to read, visualize, and operate on magnetic data imported from Geoscience Analyst. 
 The GUI is designed to import magnetic data from a Geoscience Analyst (GA) workspace, perform operations and transformations on the magnetic grids (e.g., spatial derivates, tilt transform), and export the results back into GA for final visualization. Grid pre-processing options are given, and fast (and lazy) vectorized calculations allow visualization and selection of optimal settings in real time.
 
+How to Cite
+====
+
+If you use this software in scientific publication, we would appreciate if you would cite the following:
+
+* Richard S. Smith, Eric A. Roots, Rajesh Vavavur; Transformation of magnetic data to the pole and vertical dip and a related apparent susceptibility transform: Exact and approximate approaches. Geophysics 2022;; 87 (2): G1–G14. doi: https://doi.org/10.1190/geo2020-0827.1
+* Richard S. Smith, Eric A. Roots, Desmond Rainsford; Open-source software for two-dimensional Fourier processing of gridded magnetic data. The Leading Edge 2022;; 41 (7): 454–461. doi: https://doi.org/10.1190/tle41070454.1
+
 Installation
 ====
 
