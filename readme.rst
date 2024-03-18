@@ -9,8 +9,8 @@ How to Cite
 
 If you use this software in scientific publication, we would appreciate if you would cite the following:
 
-* Richard S. Smith, Eric A. Roots, Rajesh Vavavur; Transformation of magnetic data to the pole and vertical dip and a related apparent susceptibility transform: Exact and approximate approaches. Geophysics 2022;; 87 (2): G1–G14. doi: https://doi.org/10.1190/geo2020-0827.1
-* Richard S. Smith, Eric A. Roots, Desmond Rainsford; Open-source software for two-dimensional Fourier processing of gridded magnetic data. The Leading Edge 2022;; 41 (7): 454–461. doi: https://doi.org/10.1190/tle41070454.1
+* Richard S. Smith, Eric A. Roots, Rajesh Vavavur (2022). Transformation of magnetic data to the pole and vertical dip and a related apparent susceptibility transform: Exact and approximate approaches. Geophysics. 87 (2). G1–G14. doi: https://doi.org/10.1190/geo2020-0827.1
+* Richard S. Smith, Eric A. Roots, Desmond Rainsford (2022). Open-source software for two-dimensional Fourier processing of gridded magnetic data. The Leading Edge. 41 (7). 454–461. doi: https://doi.org/10.1190/tle41070454.1
 
 Installation
 ====
